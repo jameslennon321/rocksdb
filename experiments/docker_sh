@@ -1,0 +1,4 @@
+#!/bin/sh
+
+docker run -it -v $PWD:/rocksdb/experiments -w /rocksdb/experiments jameslennon321/rocksdb
+
