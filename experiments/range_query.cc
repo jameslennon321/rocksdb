@@ -108,10 +108,11 @@ double timed_execute_query(DB* db, int query_type, int key1, int key2) {
 }
 
 
-int execute_workload(DB* db, int db_size, int n_queries, double* usec_trace) {
+int execute_workload(DB* db, int db_size, int n_queries, double w1, double w2, double w3, double* usec_trace) {
 
 	default_random_engine generator;
-	uniform_int_distribution<int> q_type_dist(0, 2);
+	// uniform_int_distribution<int> q_type_dist(0, 2);
+	discrete_distribution<int> q_type_dist({w1, w2, w3});
 	uniform_int_distribution<int> key_dist(0, db_size - 1);
 
 	for (int i = 0; i < n_queries; ++i)
@@ -150,7 +151,19 @@ int main() {
 	int n_queries = 1000;
 	cout << "Executing workload for " << n_queries << " queries..." << endl;
 	double usec_trace[n_queries];
-	execute_workload(db, count, n_queries, usec_trace);
+	execute_workload(db, count, n_queries, 1, 1, 1, usec_trace);
+	for (int i = 0; i < count; ++i)
+	{
+		printf("%f\n", usec_trace[i]);
+	}
+
+	execute_workload(db, count, n_queries, 5, 1, 1, usec_trace);
+	for (int i = 0; i < count; ++i)
+	{
+		printf("%f\n", usec_trace[i]);
+	}
+
+	execute_workload(db, count, n_queries, 1, 1, 1, usec_trace);
 	for (int i = 0; i < count; ++i)
 	{
 		printf("%f\n", usec_trace[i]);
