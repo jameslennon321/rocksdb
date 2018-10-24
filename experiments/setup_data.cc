@@ -27,7 +27,6 @@ int load_keys_data(const char* filename, DB* db) {
     int key;
     Status s;
     WriteOptions write_options;
-    write_options.sync = true;
     for (int i = 0; i < n; ++i)
     {
         fin.read(buf, sizeof(int));
