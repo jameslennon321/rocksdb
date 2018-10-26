@@ -6,6 +6,7 @@
 #include <cstdio>
 #include <ctime>
 #include <iostream>
+#include <fstream>
 #include <cstdlib>
 #include <string>
 #include <unistd.h>
@@ -126,6 +127,41 @@ int execute_workload(DB* db, int db_size, int n_queries, double w1, double w2, d
 }
 
 
+int load_keys_data(const char* filename, DB* db) {
+    ifstream fin(filename, ios::binary);
+
+    char buf[4];
+    char val_buf[4];
+    fin.read(buf, 4);
+    int n = int_of_string(buf);
+    // cout << "n = " << n << endl;
+
+    int key;
+    Status s;
+    WriteOptions write_options;
+    for (int i = 0; i < n; ++i)
+    {
+        fin.read(buf, sizeof(int));
+        key = int_of_string(buf);
+        string_of_int(val_buf, i);
+        // cout << key << " -> " << i << endl;
+        s = db->Put(write_options,
+                    Slice(buf, 4),
+                    Slice(val_buf, 4));
+        assert(s.ok());
+
+        string value;
+        s = db->Get(ReadOptions(), Slice(buf, 4), &value);
+        assert(s.ok());
+        assert(int_of_string(value.c_str()) == i);
+        // cout << int_of_string(value.c_str()) << endl;
+    }
+
+    fin.close();
+    return n;
+}
+
+
 int main() {
 	DB* db;
 	Options options;
@@ -139,17 +175,9 @@ int main() {
 	Status s = DB::Open(options, kDBPath, &db);
 	assert(s.ok());
 
-	cout << "Loading data..." << endl;
 	int count = load_keys_data(KEYS_FILENAME, db);
-	sleep(3);
-	cout << "Loaded " << count << " keys" << endl;
-
-	execute_range_query(db, 0, 23);
-	cout << execute_point_read(db, 99) << endl;
-	execute_point_write(db, 23, 420);
 
 	int n_queries = 1000;
-	cout << "Executing workload for " << n_queries << " queries..." << endl;
 	double usec_trace[n_queries];
 	execute_workload(db, count, n_queries, 1, 1, 1, usec_trace);
 	for (int i = 0; i < count; ++i)
