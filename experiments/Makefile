@@ -19,6 +19,9 @@ all: simple_example column_families_example compact_files_example c_simple_examp
 simple_example: librocksdb simple_example.cc
 	$(CXX) $(CXXFLAGS) $@.cc -o$@ ../librocksdb.a -I../include -O2 -std=c++11 $(PLATFORM_LDFLAGS) $(PLATFORM_CXXFLAGS) $(EXEC_LDFLAGS)
 
+berkeleydb_workload: berkeleydb_workload.cpp setup_data.cc
+	$(CXX) setup_data.cc $@.cpp -std=c++11 -ldb_cxx -o$@
+
 range_query: librocksdb range_query.cc setup_data.cc
 	$(CXX) $(CXXFLAGS) $@.cc setup_data.cc -o$@ ../librocksdb.a -I../include -O2 -std=c++11 $(PLATFORM_LDFLAGS) $(PLATFORM_CXXFLAGS) $(EXEC_LDFLAGS)
 

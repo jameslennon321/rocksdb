@@ -6,10 +6,14 @@ RUN apt-get update && apt-get install -y \
     libsnappy-dev \
     zlib1g-dev \
     libbz2-dev \
-    liblz4-dev
+    liblz4-dev \
+    libdb++-dev \
+    vim
 
 COPY . /rocksdb/
 RUN ["ls", "/rocksdb"]
 WORKDIR /rocksdb
 RUN ["make", "static_lib"]
+
+RUN ["mkdir", "/berkeleydb"]
 

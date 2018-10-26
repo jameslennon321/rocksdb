@@ -5,49 +5,49 @@
 #include <algorithm>
 #include <random>
 
-#include "rocksdb/db.h"
-#include "rocksdb/options.h"
+// #include "rocksdb/db.h"
+// #include "rocksdb/options.h"
 
 
 using namespace std;
-using namespace rocksdb;
+// using namespace rocksdb;
 
 
 int keys[N_ENTRIES];
 
-int load_keys_data(const char* filename, DB* db) {
-    ifstream fin(filename, ios::binary);
+// int load_keys_data(const char* filename, DB* db) {
+//     ifstream fin(filename, ios::binary);
 
-    char buf[4];
-    char val_buf[4];
-    fin.read(buf, 4);
-    int n = int_of_string(buf);
-    // cout << "n = " << n << endl;
+//     char buf[4];
+//     char val_buf[4];
+//     fin.read(buf, 4);
+//     int n = int_of_string(buf);
+//     // cout << "n = " << n << endl;
 
-    int key;
-    Status s;
-    WriteOptions write_options;
-    for (int i = 0; i < n; ++i)
-    {
-        fin.read(buf, sizeof(int));
-        key = int_of_string(buf);
-        string_of_int(val_buf, i);
-        // cout << key << " -> " << i << endl;
-        s = db->Put(write_options,
-                    Slice(buf, 4),
-                    Slice(val_buf, 4));
-        assert(s.ok());
+//     int key;
+//     Status s;
+//     WriteOptions write_options;
+//     for (int i = 0; i < n; ++i)
+//     {
+//         fin.read(buf, sizeof(int));
+//         key = int_of_string(buf);
+//         string_of_int(val_buf, i);
+//         // cout << key << " -> " << i << endl;
+//         s = db->Put(write_options,
+//                     Slice(buf, 4),
+//                     Slice(val_buf, 4));
+//         assert(s.ok());
 
-        string value;
-        s = db->Get(ReadOptions(), Slice(buf, 4), &value);
-        assert(s.ok());
-        assert(int_of_string(value.c_str()) == i);
-        // cout << int_of_string(value.c_str()) << endl;
-    }
+//         string value;
+//         s = db->Get(ReadOptions(), Slice(buf, 4), &value);
+//         assert(s.ok());
+//         assert(int_of_string(value.c_str()) == i);
+//         // cout << int_of_string(value.c_str()) << endl;
+//     }
 
-    fin.close();
-    return n;
-}
+//     fin.close();
+//     return n;
+// }
 
 void generate_keys_data() {
     /* Setup array */
