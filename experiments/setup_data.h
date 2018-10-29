@@ -1,6 +1,6 @@
 // #include "rocksdb/db.h"
 
-#define N_ENTRIES 10000
+#define N_ENTRIES 100000
 #define SEED 42
 #define KEYS_FILENAME "keys.data"
 

@@ -27,7 +27,8 @@ using namespace std;
 #define Q_READ 1
 #define Q_WRITE 2
 
-#define RANGE_LEN 2000
+#define RANGE_LEN 500
+#define N_ITERS 3
 
 
 std::string kDBPath = "/tmp/rocksdb_range_experiment";
@@ -113,7 +114,7 @@ double timed_execute_query(DB* db, int query_type, int key1, int key2) {
 
 int execute_workload(DB* db, const int db_size, const int n_queries, double w1, double w2, double w3, double* usec_trace) {
 
-	default_random_engine generator;
+	default_random_engine generator(SEED);
 	// uniform_int_distribution<int> q_type_dist(0, 2);
 	discrete_distribution<int> q_type_dist({w1, w2, w3});
 	uniform_int_distribution<int> key_dist(0, db_size - 1);
@@ -185,29 +186,38 @@ int main() {
 
 	const int n_queries = 2000;
 	double usec_trace[n_queries];
-	execute_workload(db, count, n_queries, 1, 1, 1, usec_trace);
-	for (int i = 0; i < n_queries; ++i)
-	{
-		printf("%f\n", usec_trace[i]);
-	}
-
-    execute_workload(db, count, n_queries, 1, 5, 5, usec_trace);
-    for (int i = 0; i < n_queries; ++i)
+    for (int j = 0; j < N_ITERS; ++j)
     {
-        printf("%f\n", usec_trace[i]);
+        // execute_workload(db, count, n_queries, 1, 1, 1, usec_trace);
+        // for (int i = 0; i < n_queries; ++i)
+        // {
+        //     printf("%f\n", usec_trace[i]);
+        // }
+
+        execute_workload(db, count, n_queries, 19, 80, 1, usec_trace);
+        for (int i = 0; i < n_queries; ++i)
+        {
+            printf("%f\n", usec_trace[i]);
+        }
+
+        execute_workload(db, count, n_queries, 1, 69, 30, usec_trace);
+        for (int i = 0; i < n_queries; ++i)
+        {
+            printf("%f\n", usec_trace[i]);
+        }
+
+        // execute_workload(db, count, n_queries, 0, 0, 5, usec_trace);
+        // for (int i = 0; i < n_queries; ++i)
+        // {
+        //     printf("%f\n", usec_trace[i]);
+        // }
+
+        // execute_workload(db, count, n_queries, 1, 1, 1, usec_trace);
+        // for (int i = 0; i < n_queries; ++i)
+        // {
+        //     printf("%f\n", usec_trace[i]);
+        // }
     }
-
-	execute_workload(db, count, n_queries, 5, 1, 1, usec_trace);
-	for (int i = 0; i < n_queries; ++i)
-	{
-		printf("%f\n", usec_trace[i]);
-	}
-
-	execute_workload(db, count, n_queries, 1, 1, 1, usec_trace);
-	for (int i = 0; i < n_queries; ++i)
-	{
-		printf("%f\n", usec_trace[i]);
-	}
 
 	int retcode = system(("rm -r " + kDBPath).c_str());
 	assert(retcode == 0);
