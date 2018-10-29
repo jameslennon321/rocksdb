@@ -27,6 +27,8 @@ using namespace std;
 #define Q_READ 1
 #define Q_WRITE 2
 
+#define RANGE_LEN 2000
+
 
 std::string kDBPath = "/tmp/rocksdb_range_experiment";
 
@@ -109,7 +111,7 @@ double timed_execute_query(DB* db, int query_type, int key1, int key2) {
 }
 
 
-int execute_workload(DB* db, int db_size, int n_queries, double w1, double w2, double w3, double* usec_trace) {
+int execute_workload(DB* db, const int db_size, const int n_queries, double w1, double w2, double w3, double* usec_trace) {
 
 	default_random_engine generator;
 	// uniform_int_distribution<int> q_type_dist(0, 2);
@@ -121,7 +123,10 @@ int execute_workload(DB* db, int db_size, int n_queries, double w1, double w2, d
 		int query_type = q_type_dist(generator);
 		int key1 = key_dist(generator);
 		int key2 = key_dist(generator);
-
+        if (query_type == Q_RANGE) {
+            key1 = rand() % (db_size - RANGE_LEN);
+            key2 = key1 + RANGE_LEN;
+        }
 		usec_trace[i] = timed_execute_query(db, query_type, key1, key2);
 	}
 }
@@ -175,24 +180,31 @@ int main() {
 	Status s = DB::Open(options, kDBPath, &db);
 	assert(s.ok());
 
-	int count = load_keys_data(KEYS_FILENAME, db);
+	const int count = load_keys_data(KEYS_FILENAME, db);
+	// cout << "Loaded " << count << endl;
 
-	int n_queries = 1000;
+	const int n_queries = 2000;
 	double usec_trace[n_queries];
 	execute_workload(db, count, n_queries, 1, 1, 1, usec_trace);
-	for (int i = 0; i < count; ++i)
+	for (int i = 0; i < n_queries; ++i)
 	{
 		printf("%f\n", usec_trace[i]);
 	}
 
+    execute_workload(db, count, n_queries, 1, 5, 5, usec_trace);
+    for (int i = 0; i < n_queries; ++i)
+    {
+        printf("%f\n", usec_trace[i]);
+    }
+
 	execute_workload(db, count, n_queries, 5, 1, 1, usec_trace);
-	for (int i = 0; i < count; ++i)
+	for (int i = 0; i < n_queries; ++i)
 	{
 		printf("%f\n", usec_trace[i]);
 	}
 
 	execute_workload(db, count, n_queries, 1, 1, 1, usec_trace);
-	for (int i = 0; i < count; ++i)
+	for (int i = 0; i < n_queries; ++i)
 	{
 		printf("%f\n", usec_trace[i]);
 	}
